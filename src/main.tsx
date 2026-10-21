@@ -1,3 +1,4 @@
+import { version } from "../package.json";
 import QuoteRequestForm from "./QuoteRequestForm";
 import Terms from "./Terms";
 import ServiceTransition from "./ServiceTransition";
@@ -478,7 +479,10 @@ function App() {
         <a href="/terms">
           Terms &amp; Conditions <ArrowUpRight size={12} />
         </a>
-        <span>© {new Date().getFullYear()} TorqLab Automotive</span>
+        <div className="footer-release">
+          <span>© {new Date().getFullYear()} TorqLab Automotive</span>
+          <small aria-label={`App version ${version}`}>v{version}</small>
+        </div>
       </footer>
     </>
   );

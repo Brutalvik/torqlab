@@ -146,3 +146,5 @@ select option,select optgroup{background:#141619}
 .phone-appointment-row>div{min-width:0}.phone-appointment-row input,.phone-appointment-row .appointment-trigger{min-height:50px}
 .phone-appointment-row .appointment-trigger{gap:8px;padding-inline:10px}.phone-appointment-row .appointment-trigger span{font-size:11px;overflow-wrap:anywhere}.phone-appointment-row .appointment-trigger>svg{flex-shrink:0}
 @media(max-width:600px), (max-width:1024px) and (pointer:coarse){.phone-appointment-row{grid-template-columns:minmax(0,1fr);gap:0}.phone-appointment-row .appointment-trigger span{font-size:12px}}
+.footer-release{display:flex;flex-direction:column;align-items:flex-end;gap:7px;margin-left:auto;text-align:right}.footer-release small{font-size:9px;letter-spacing:.06em;color:var(--color-muted);opacity:.75}
+@media(max-width:480px){footer.wrap .footer-release{align-self:flex-end;margin-left:auto}}
