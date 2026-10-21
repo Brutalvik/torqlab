@@ -92,3 +92,27 @@ footer.wrap{gap:24px;row-gap:18px}.closing{gap:24px}
 /* Prevent the header's top margin from exposing the darker HTML backdrop. */
 body{display:flow-root;min-height:100vh}
 #root{display:flow-root;min-height:100vh}
+.service-transition{overflow:clip;overflow-clip-margin:24px}
+.segmented{position:relative;isolation:isolate;display:grid;grid-template-columns:1fr 1fr;gap:0}
+.segmented::before{content:'';position:absolute;inset:5px auto 5px 5px;width:calc((100% - 10px)/2);border-radius:11px;background:linear-gradient(135deg,#f1fcff40,#e0f5ff0c 55%,#d6f3ff26);border:1px solid #effbff70;box-shadow:inset 0 1.5px 1px #ffffff8f,inset 0 -1px 2px #e2f6ff36,0 2px 6px #102c4026;transition:transform .36s cubic-bezier(.22,1,.36,1);z-index:-1}
+.segmented[data-mode='brakes']::before{transform:translateX(100%)}
+.segmented button,.segmented button.active{border:1px solid transparent;background:transparent;box-shadow:none;justify-content:center}
+@media(prefers-reduced-motion:reduce){.segmented::before{transition:none}}
+/* Midnight aurora backdrop for the liquid-glass surfaces. */
+:root{--color-page:#080f19;--color-surface:#122234}
+body{background-color:#080f19;background-image:radial-gradient(ellipse at 82% 8%,rgba(47,97,117,.28),transparent 46%),radial-gradient(ellipse at 8% 42%,rgba(28,88,78,.18),transparent 48%),radial-gradient(ellipse at 78% 80%,rgba(55,55,105,.2),transparent 44%),linear-gradient(150deg,#0d1927 0%,#080f19 58%,#070d15 100%);background-attachment:fixed}
+body::before{background:radial-gradient(ellipse at 12% 8%,rgba(143,201,218,.04),transparent 30%),repeating-linear-gradient(112deg,transparent 0 190px,rgba(201,230,255,.018) 190px 320px)}
+select option,select optgroup{background:#122234}
+/* Dark aurora: broad luminous ribbons over an obsidian base. */
+body{background-color:#060c14;background-image:radial-gradient(ellipse 85% 38% at 12% 2%,rgba(22,135,112,.31),transparent 72%),radial-gradient(ellipse 65% 46% at 92% 22%,rgba(72,55,148,.34),transparent 72%),radial-gradient(ellipse 90% 32% at 24% 55%,rgba(16,110,126,.25),transparent 74%),radial-gradient(ellipse 65% 38% at 85% 88%,rgba(80,40,122,.28),transparent 74%),linear-gradient(145deg,#08171c,#070b16 48%,#090e18);background-attachment:fixed}
+body::before{background:linear-gradient(115deg,transparent 8%,rgba(75,201,158,.035) 26%,transparent 43%,rgba(135,103,221,.035) 69%,transparent 88%);mask-image:none}
+/* Obsidian black: neutral depth with restrained illumination. */
+:root{--color-page:#08090b;--color-surface:#141619}
+body{background-color:#08090b;background-image:radial-gradient(ellipse at 65% 0%,rgba(149,158,167,.09),transparent 55%),radial-gradient(ellipse at 8% 65%,rgba(121,130,138,.035),transparent 50%),linear-gradient(145deg,#101114,#08090b 60%,#050607);background-attachment:fixed}
+body::before{background:linear-gradient(115deg,transparent 15%,rgba(255,255,255,.018) 40%,transparent 65%);mask-image:none}
+select option,select optgroup{background:#141619}
+/* Logo-inspired emerald-to-lime glass buttons. */
+:root{--button-green:linear-gradient(135deg,#72df1b 0%,#49c80a 34%,#2da306 68%,#258c08 100%);--button-green-hover:linear-gradient(135deg,#83ed2a 0%,#54d510 34%,#37b00a 68%,#29980a 100%)}
+.btn:not(.secondary){background:var(--button-green);color:#020900;border-color:#81d744a6;text-shadow:0 1px 0 #b7ff7326;box-shadow:inset 0 1.5px 1px #ccff8c70,inset 0 -2px 3px #0b51054d,0 6px 18px #0209024d}
+.btn:not(.secondary):hover{background:var(--button-green-hover);border-color:#a5f46b;box-shadow:inset 0 1.5px 1px #d4ffa680,inset 0 -2px 3px #0b51054d,0 8px 22px #1a5f072e}
+.btn:not(.secondary):active{background:linear-gradient(135deg,#53c710,#2ca006 60%,#258c08);box-shadow:inset 0 2px 4px #0b3a0440}

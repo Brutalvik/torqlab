@@ -1,3 +1,4 @@
+import ServiceTransition from "./ServiceTransition";
 import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
@@ -160,13 +161,11 @@ function App() {
   const quote = `Hi TorqLab! I'd like a quote for ${selected.name}${perAxle ? ` (${b.axles} axle${b.axles > 1 ? "s" : ""})` : ""}.\nVehicle: ${b.vehicle || "[year, make, model]"} (${b.vehicleType})\nCalgary neighbourhood: ${b.neighbourhood || "[neighbourhood]"}\nStarting estimate: ${money(total)} CAD. Please confirm pricing and availability.`;
   const pick = (id: ServiceId) => {
     dispatch(update({ service: id }));
-    document
-      .getElementById("quote")
-      ?.scrollIntoView({
-        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "instant"
-          : "smooth",
-      });
+    document.getElementById("quote")?.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
   };
   const copy = async () => {
     try {
@@ -235,7 +234,11 @@ function App() {
                 <span className="muted">Better for your day.</span>
               </h2>
             </div>
-            <div className="segmented" aria-label="Service category">
+            <div
+              className="segmented"
+              data-mode={b.mode}
+              aria-label="Service category"
+            >
               {(
                 [
                   ["oil", "Oil change", Droplets],
@@ -254,40 +257,42 @@ function App() {
               ))}
             </div>
           </div>
-          <div className="service-grid">
-            {services[b.mode].map((s, i) => (
-              <article
-                key={s.id}
-                className={`service-card ${s.popular ? "featured" : ""}`}
-              >
-                <div className="card-top">
-                  <span className="card-number">0{i + 1}</span>
-                  {s.popular && <span className="badge">MOST POPULAR</span>}
-                </div>
-                <h3>{s.name}</h3>
-                <p className="muted card-sub">{s.sub}</p>
-                <div className="price">
-                  {s.from && <small>from </small>}
-                  {money(s.price)}
-                  <small> CAD {s.unit}</small>
-                </div>
-                <ul>
-                  {s.features.map((f) => (
-                    <li key={f}>
-                      <Check size={15} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  className={s.popular ? "btn" : "btn secondary"}
-                  onClick={() => pick(s.id)}
+          <ServiceTransition mode={b.mode}>
+            <div className="service-grid">
+              {services[b.mode].map((s, i) => (
+                <article
+                  key={s.id}
+                  className={`service-card ${s.popular ? "featured" : ""}`}
                 >
-                  Choose this service <ArrowUpRight size={17} />
-                </button>
-              </article>
-            ))}
-          </div>
+                  <div className="card-top">
+                    <span className="card-number">0{i + 1}</span>
+                    {s.popular && <span className="badge">MOST POPULAR</span>}
+                  </div>
+                  <h3>{s.name}</h3>
+                  <p className="muted card-sub">{s.sub}</p>
+                  <div className="price">
+                    {s.from && <small>from </small>}
+                    {money(s.price)}
+                    <small> CAD {s.unit}</small>
+                  </div>
+                  <ul>
+                    {s.features.map((f) => (
+                      <li key={f}>
+                        <Check size={15} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    className={s.popular ? "btn" : "btn secondary"}
+                    onClick={() => pick(s.id)}
+                  >
+                    Choose this service <ArrowUpRight size={17} />
+                  </button>
+                </article>
+              ))}
+            </div>
+          </ServiceTransition>
           <p className="pricing-note">
             Starting estimates based on your vehicle. We confirm the exact price
             before any work begins.
