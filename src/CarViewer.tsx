@@ -7,7 +7,7 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 export default function CarViewer() {
   const paint = useAppSelector((s) => s.booking.paint);
   const host = useRef<HTMLDivElement>(null);
-  const [status, setStatus] = useState("Loading your workshop…");
+  const [status, setStatus] = useState("");
   useEffect(() => {
     let disposed = false;
     let model: THREE.Group | undefined;
@@ -172,12 +172,7 @@ export default function CarViewer() {
         frameCar();
         setStatus("");
       },
-      (p) => {
-        if (p.total)
-          setStatus(
-            `Preparing 3D model · ${Math.round((p.loaded / p.total) * 100)}%`,
-          );
-      },
+      undefined,
       () => setStatus("The model could not load. Refresh to try again."),
     );
     const clock = new THREE.Clock();
@@ -228,9 +223,6 @@ export default function CarViewer() {
           {status}
         </div>
       )}
-      <p className="drag-hint">
-        Drag to explore <span>·</span> Scroll to explore the page
-      </p>
     </div>
   );
 }

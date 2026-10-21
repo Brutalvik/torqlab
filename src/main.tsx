@@ -1,3 +1,4 @@
+import Terms from "./Terms";
 import ServiceTransition from "./ServiceTransition";
 import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
@@ -204,11 +205,7 @@ function App() {
             </div>
           </div>
           <div className="hero-model">
-            <Suspense
-              fallback={
-                <div className="viewer model-status">Opening the workshop…</div>
-              }
-            >
+            <Suspense fallback={null}>
               <CarViewer />
             </Suspense>
           </div>
@@ -217,18 +214,20 @@ function App() {
               <MapPin size={15} /> Serving Calgary, Alberta
             </span>
             <span>
-              <Clock3 size={15} /> At your home or workplace
+              <Clock3 size={15} /> At your home
             </span>
             <span>
               <Wrench size={15} /> Fully equipped. Ready to go.
             </span>
           </div>
         </section>
-        <section id="services" className="section wrap">
+        <section className="section wrap" aria-labelledby="services-title">
           <div className="section-head">
             <div>
-              <p className="eyebrow">01 / THE SERVICES</p>
-              <h2>
+              <p id="services" className="eyebrow">
+                01 / THE SERVICES
+              </p>
+              <h2 id="services-title">
                 Good for your car.
                 <br />
                 <span className="muted">Better for your day.</span>
@@ -298,11 +297,11 @@ function App() {
             before any work begins.
           </p>
         </section>
-        <section id="quote" className="section wrap">
-          <div className="quote-panel">
+        <section className="section wrap" aria-labelledby="quote-title">
+          <div id="quote" className="quote-panel">
             <div className="quote-form">
               <p className="eyebrow">02 / MAKE IT YOURS</p>
-              <h2>A little about your car.</h2>
+              <h2 id="quote-title">A little about your car.</h2>
               <p className="muted">
                 Build your estimate. We’ll take it from there.
               </p>
@@ -337,7 +336,7 @@ function App() {
                   <button
                     key={t}
                     aria-pressed={b.vehicleType === t}
-                    className={b.vehicleType === t ? "active" : ""}
+                    className={`vehicle-type-btn${b.vehicleType === t ? " selected" : ""}`}
                     onClick={() => dispatch(update({ vehicleType: t }))}
                   >
                     {t}
@@ -501,8 +500,8 @@ function App() {
           <img src="/torqlab-logo.png" alt="TorqLab" />
         </a>
         <span>2607521 Alberta Inc. · Calgary, Alberta</span>
-        <a href="/model-attribution.txt" target="_blank" rel="noreferrer">
-          3D model credits <ArrowUpRight size={12} />
+        <a href="/terms">
+          Terms &amp; Conditions <ArrowUpRight size={12} />
         </a>
         <span>© {new Date().getFullYear()} TorqLab Automotive</span>
       </footer>
@@ -512,7 +511,12 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      {window.location.pathname.replace(/\/$/, "") === "/terms" ? (
+        <Terms />
+      ) : (
+        <App />
+      )}
     </Provider>
   </React.StrictMode>,
 );
+
