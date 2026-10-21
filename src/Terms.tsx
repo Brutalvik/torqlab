@@ -54,7 +54,7 @@ const clauses = [
   ],
   [
     "Records and personal information",
-    "We use vehicle, contact, authorization and service records for quoting, performing services, invoicing, resolving concerns and legal recordkeeping, subject to applicable Alberta privacy law. Job documentation should be limited to what is reasonably needed; marketing use of identifiable photos or customer information requires separate appropriate consent. The current frontend quote builder does not submit a booking or transmit the entered details to TorqLab; copying a request places it on your device clipboard. A live collection system requires suitable privacy disclosures before launch.",
+    "We use vehicle, contact, authorization and service records for quoting, performing services, invoicing, resolving concerns and legal recordkeeping, subject to applicable Alberta privacy law. Job documentation should be limited to what is reasonably needed; marketing use of identifiable photos or customer information requires separate appropriate consent. Submitting the quote form sends the contact information, vehicle details, notes and preferred time to the TorqLab server for local storage and response to the request. Email and SMS notifications are not yet configured. A quote request is not a confirmed booking. We do not subscribe you to marketing through this form. Further privacy and retention details must be completed before public launch.",
   ],
   [
     "Alberta law and consumer rights",
