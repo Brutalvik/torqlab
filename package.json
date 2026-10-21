@@ -4,29 +4,50 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "concurrently -k -n web,api \"npm:dev:web\" \"npm:dev:api\"",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:web": "vite --host 127.0.0.1",
+    "dev:api": "tsx watch server/index.ts",
+    "start": "tsx server/index.ts",
+    "test": "tsx --test server/app.test.ts",
+    "quotes:list": "tsx server/manage.ts list",
+    "slots": "tsx server/manage.ts"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
     "lucide-react": "^0.468.0",
+    "luxon": "^3.7.2",
+    "nodemailer": "^10.1.7",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
-    "three": "^0.180.0"
+    "three": "^0.180.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",
+    "@types/express": "^5.0.6",
+    "@types/luxon": "^3.7.6",
     "@types/node": "^26.6.5",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.186.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^10.0.6",
     "prettier": "^3.9.10",
     "tailwindcss": "^4.1.0",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^7.1.0"
+  },
+  "engines": {
+    "node": ">=24.4.0"
   }
 }

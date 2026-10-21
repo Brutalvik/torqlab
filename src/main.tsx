@@ -1,3 +1,4 @@
+import QuoteRequestForm from "./QuoteRequestForm";
 import Terms from "./Terms";
 import ServiceTransition from "./ServiceTransition";
 import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
@@ -16,8 +17,6 @@ import {
   Wrench,
   Droplets,
   Disc3,
-  Copy,
-  CheckCheck,
   Home,
   ClipboardList,
   CircleHelp,
@@ -152,14 +151,11 @@ function Navigation() {
 }
 function App() {
   const b = useAppSelector((s) => s.booking),
-    dispatch = useAppDispatch(),
-    [copied, setCopied] = useState(false),
-    [copyError, setCopyError] = useState(false);
+    dispatch = useAppDispatch();
   const selected =
       allServices.find((s) => s.id === b.service) ?? allServices[0],
     perAxle = ["b1", "b2"].includes(b.service),
     total = selected.price * (perAxle ? b.axles : 1);
-  const quote = `Hi TorqLab! I'd like a quote for ${selected.name}${perAxle ? ` (${b.axles} axle${b.axles > 1 ? "s" : ""})` : ""}.\nVehicle: ${b.vehicle || "[year, make, model]"} (${b.vehicleType})\nCalgary neighbourhood: ${b.neighbourhood || "[neighbourhood]"}\nStarting estimate: ${money(total)} CAD. Please confirm pricing and availability.`;
   const pick = (id: ServiceId) => {
     dispatch(update({ service: id }));
     document.getElementById("quote")?.scrollIntoView({
@@ -167,16 +163,6 @@ function App() {
         ? "instant"
         : "smooth",
     });
-  };
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(quote);
-      setCopied(true);
-      setCopyError(false);
-      setTimeout(() => setCopied(false), 3000);
-    } catch {
-      setCopyError(true);
-    }
   };
   return (
     <>
@@ -398,18 +384,7 @@ function App() {
                 Your car, your schedule. Exact pricing and availability
                 confirmed before booking.
               </p>
-              <label htmlFor="message">Your quote request</label>
-              <textarea id="message" value={quote} readOnly rows={6} />
-              <button className="btn" onClick={copy}>
-                {copied ? <CheckCheck size={17} /> : <Copy size={17} />}{" "}
-                {copied ? "Request copied" : "Copy quote request"}
-                <ArrowUpRight size={17} />
-              </button>
-              <p className="fine-print" role="status">
-                {copyError
-                  ? "Copy unavailable. Select the message above and copy it manually."
-                  : "Copy your request to share with TorqLab. This estimate does not book an appointment."}
-              </p>
+              <QuoteRequestForm />
             </aside>
           </div>
         </section>
