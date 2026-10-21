@@ -1,0 +1,6 @@
+2025 BMW M5 Sedan by Ddiaz Design
+https://sketchfab.com/ddiaz-design
+Source: https://sketchfab.com/3d-models/2025-bmw-m5-sedan-4ab34c43bada482b8e467be97ebaeba3
+License embedded in supplied model: CC BY-NC-SA 4.0
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+Runtime material adjustments by TorqLab frontend: satin paint roughness, reduced metalness and environment intensity.
