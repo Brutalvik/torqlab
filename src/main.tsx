@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { version } from "../package.json";
 import QuoteRequestForm from "./QuoteRequestForm";
 import Terms from "./Terms";
@@ -496,5 +497,13 @@ createRoot(document.getElementById("root")!).render(
         <App />
       )}
     </Provider>
+    <Analytics
+      beforeSend={(event) => {
+        const url = new URL(event.url);
+        url.search = "";
+        url.hash = "";
+        return { ...event, url: url.toString() };
+      }}
+    />
   </React.StrictMode>,
 );

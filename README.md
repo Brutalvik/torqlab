@@ -69,3 +69,10 @@ The supplied model embeds Ddiaz Design attribution and a CC BY-NC-SA 4.0 licence
 
 The preferred date/time control opens a native modal dialog with a blurred backdrop. Draft selections apply only on Confirm; Cancel/Escape preserve the committed value. Mouse devices use public/cursors/torqlab-pointer.png; text inputs retain their editing cursor. Touch devices use normal touch behaviour.
 
+
+## Vercel frontend deployment
+
+vercel.json builds the Vite frontend into dist and serves /terms through index.html. Deploy the latest main commit, not the older a629bda deployment that predates the Luxon parameter-type fix. Enable Web Analytics in the Vercel project dashboard; the root React Analytics component covers landing and terms pages, and removes query strings and hash fragments from analytics event URLs. No quote field values or custom events are sent to analytics. App version is sourced from package.json.
+
+This Vercel configuration deploys the frontend only. The Express API and SQLite remain local as requested; production quote requests need a separately hosted API and durable storage before they can function on the public site.
+
