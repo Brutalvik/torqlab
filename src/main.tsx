@@ -1,0 +1,513 @@
+import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import { useAppDispatch, useAppSelector } from "./hooks";
+import type { CSSProperties } from "react";
+import type { ServiceId } from "./data";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Check,
+  MapPin,
+  ShieldCheck,
+  Clock3,
+  Wrench,
+  Droplets,
+  Disc3,
+  Copy,
+  CheckCheck,
+  Home,
+  ClipboardList,
+  CircleHelp,
+} from "lucide-react";
+import { store, setMode, update } from "./store";
+import { services, allServices } from "./data";
+import "./styles.css";
+const CarViewer = lazy(() => import("./CarViewer"));
+const money = (n: number) =>
+  new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
+    maximumFractionDigits: 0,
+  }).format(n);
+const navItems = [
+  ["home", "Home", Home],
+  ["services", "Services", Droplets],
+  ["quote", "Quote", ClipboardList],
+  ["faq", "FAQ", CircleHelp],
+] as const;
+function Navigation() {
+  const [active, setActive] = useState("home");
+  const destination = useRef<{ id: string; started: number } | null>(null);
+  const selectSection = (id: string) => {
+    destination.current = { id, started: performance.now() };
+    setActive(id);
+  };
+  useEffect(() => {
+    let frame = 0;
+    const track = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const pending = destination.current;
+        if (pending) {
+          const node = document.getElementById(pending.id);
+          const scrollMargin =
+            parseFloat(
+              getComputedStyle(document.documentElement).scrollPaddingTop,
+            ) || 0;
+          const expected = node
+            ? Math.min(
+                window.scrollY +
+                  node.getBoundingClientRect().top -
+                  scrollMargin,
+                document.documentElement.scrollHeight - window.innerHeight,
+              )
+            : window.scrollY;
+          if (
+            Math.abs(window.scrollY - Math.max(0, expected)) < 3 ||
+            performance.now() - pending.started > 2500
+          ) {
+            destination.current = null;
+            setActive(pending.id);
+            return;
+          } else {
+            return;
+          }
+        }
+        const marker = window.innerHeight * 0.3;
+        let current = "home";
+        for (const [id] of navItems) {
+          const node = document.getElementById(id);
+          if (node && node.getBoundingClientRect().top <= marker) current = id;
+        }
+        setActive(current);
+      });
+    };
+    const cancelSelection = () => {
+      destination.current = null;
+    };
+    const cancelOnKey = (e: KeyboardEvent) => {
+      if (
+        [
+          "ArrowUp",
+          "ArrowDown",
+          "PageUp",
+          "PageDown",
+          "Home",
+          "End",
+          " ",
+        ].includes(e.key)
+      )
+        cancelSelection();
+    };
+    window.addEventListener("wheel", cancelSelection, { passive: true });
+    window.addEventListener("touchstart", cancelSelection, { passive: true });
+    window.addEventListener("keydown", cancelOnKey);
+    window.addEventListener("scroll", track, { passive: true });
+    window.addEventListener("resize", track);
+    track();
+    return () => {
+      window.removeEventListener("wheel", cancelSelection);
+      window.removeEventListener("touchstart", cancelSelection);
+      window.removeEventListener("keydown", cancelOnKey);
+      window.removeEventListener("scroll", track);
+      window.removeEventListener("resize", track);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+  return (
+    <header className="nav">
+      <a href="#home" className="brand" aria-label="TorqLab home">
+        <img src="/torqlab-logo.png" alt="TorqLab" />
+      </a>
+      <nav
+        className="nav-links"
+        aria-label="Main navigation"
+        style={
+          {
+            "--active-index": navItems.findIndex(([id]) => id === active),
+          } as CSSProperties
+        }
+      >
+        <span className="glass-indicator" aria-hidden="true" />
+        {navItems.map(([id, label, Icon]) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            aria-label={label}
+            title={label}
+            className={active === id ? "active" : ""}
+            aria-current={active === id ? "location" : undefined}
+            onClick={() => selectSection(id)}
+          >
+            <Icon size={19} />
+            <span>{label}</span>
+          </a>
+        ))}
+      </nav>
+    </header>
+  );
+}
+function App() {
+  const b = useAppSelector((s) => s.booking),
+    dispatch = useAppDispatch(),
+    [copied, setCopied] = useState(false),
+    [copyError, setCopyError] = useState(false);
+  const selected =
+      allServices.find((s) => s.id === b.service) ?? allServices[0],
+    perAxle = ["b1", "b2"].includes(b.service),
+    total = selected.price * (perAxle ? b.axles : 1);
+  const quote = `Hi TorqLab! I'd like a quote for ${selected.name}${perAxle ? ` (${b.axles} axle${b.axles > 1 ? "s" : ""})` : ""}.\nVehicle: ${b.vehicle || "[year, make, model]"} (${b.vehicleType})\nCalgary neighbourhood: ${b.neighbourhood || "[neighbourhood]"}\nStarting estimate: ${money(total)} CAD. Please confirm pricing and availability.`;
+  const pick = (id: ServiceId) => {
+    dispatch(update({ service: id }));
+    document
+      .getElementById("quote")
+      ?.scrollIntoView({
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
+      });
+  };
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(quote);
+      setCopied(true);
+      setCopyError(false);
+      setTimeout(() => setCopied(false), 3000);
+    } catch {
+      setCopyError(true);
+    }
+  };
+  return (
+    <>
+      <Navigation />
+      <main>
+        <section id="home" className="hero wrap">
+          <div className="hero-copy">
+            <p className="eyebrow">
+              <span className="live-dot" /> MOBILE AUTO CARE · CALGARY
+            </p>
+            <h1>
+              Your driveway.
+              <br />
+              <span className="muted">Our workshop.</span>
+            </h1>
+            <p className="intro">
+              Expert oil changes and brake service, right where you park. Less
+              time at the shop. More time for everything else.
+            </p>
+            <a href="#services" className="btn">
+              Explore our services <ArrowUpRight size={18} />
+            </a>
+            <div className="hero-proof">
+              <ShieldCheck size={18} />
+              <span>Professional care. Without the shop visit.</span>
+            </div>
+          </div>
+          <div className="hero-model">
+            <Suspense
+              fallback={
+                <div className="viewer model-status">Opening the workshop…</div>
+              }
+            >
+              <CarViewer />
+            </Suspense>
+          </div>
+          <div className="hero-foot">
+            <span>
+              <MapPin size={15} /> Serving Calgary, Alberta
+            </span>
+            <span>
+              <Clock3 size={15} /> At your home or workplace
+            </span>
+            <span>
+              <Wrench size={15} /> Fully equipped. Ready to go.
+            </span>
+          </div>
+        </section>
+        <section id="services" className="section wrap">
+          <div className="section-head">
+            <div>
+              <p className="eyebrow">01 / THE SERVICES</p>
+              <h2>
+                Good for your car.
+                <br />
+                <span className="muted">Better for your day.</span>
+              </h2>
+            </div>
+            <div className="segmented" aria-label="Service category">
+              {(
+                [
+                  ["oil", "Oil change", Droplets],
+                  ["brakes", "Brakes", Disc3],
+                ] as const
+              ).map(([id, label, Icon]) => (
+                <button
+                  key={id}
+                  aria-pressed={b.mode === id}
+                  className={b.mode === id ? "active" : ""}
+                  onClick={() => dispatch(setMode(id))}
+                >
+                  <Icon size={16} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="service-grid">
+            {services[b.mode].map((s, i) => (
+              <article
+                key={s.id}
+                className={`service-card ${s.popular ? "featured" : ""}`}
+              >
+                <div className="card-top">
+                  <span className="card-number">0{i + 1}</span>
+                  {s.popular && <span className="badge">MOST POPULAR</span>}
+                </div>
+                <h3>{s.name}</h3>
+                <p className="muted card-sub">{s.sub}</p>
+                <div className="price">
+                  {s.from && <small>from </small>}
+                  {money(s.price)}
+                  <small> CAD {s.unit}</small>
+                </div>
+                <ul>
+                  {s.features.map((f) => (
+                    <li key={f}>
+                      <Check size={15} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  className={s.popular ? "btn" : "btn secondary"}
+                  onClick={() => pick(s.id)}
+                >
+                  Choose this service <ArrowUpRight size={17} />
+                </button>
+              </article>
+            ))}
+          </div>
+          <p className="pricing-note">
+            Starting estimates based on your vehicle. We confirm the exact price
+            before any work begins.
+          </p>
+        </section>
+        <section id="quote" className="section wrap">
+          <div className="quote-panel">
+            <div className="quote-form">
+              <p className="eyebrow">02 / MAKE IT YOURS</p>
+              <h2>A little about your car.</h2>
+              <p className="muted">
+                Build your estimate. We’ll take it from there.
+              </p>
+              <label htmlFor="service">Your service</label>
+              <select
+                id="service"
+                value={b.service}
+                onChange={(e) =>
+                  dispatch(update({ service: e.target.value as ServiceId }))
+                }
+              >
+                {Object.entries(services).map(([key, list]) => (
+                  <optgroup
+                    key={key}
+                    label={key === "oil" ? "Oil changes" : "Brake services"}
+                  >
+                    {list.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name} — from {money(s.price)}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <label>Vehicle type</label>
+              <div className="chips">
+                {[
+                  "Car / Sedan",
+                  "SUV (eligible)",
+                  "European / Performance",
+                ].map((t) => (
+                  <button
+                    key={t}
+                    aria-pressed={b.vehicleType === t}
+                    className={b.vehicleType === t ? "active" : ""}
+                    onClick={() => dispatch(update({ vehicleType: t }))}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <div className="form-row">
+                <div>
+                  <label htmlFor="vehicle">Year, make & model</label>
+                  <input
+                    id="vehicle"
+                    placeholder="2020 BMW 330i"
+                    value={b.vehicle}
+                    onChange={(e) =>
+                      dispatch(update({ vehicle: e.target.value }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label htmlFor="location">Calgary neighbourhood</label>
+                  <input
+                    id="location"
+                    placeholder="e.g. Beltline"
+                    value={b.neighbourhood}
+                    onChange={(e) =>
+                      dispatch(update({ neighbourhood: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+              {perAxle && (
+                <>
+                  <label htmlFor="axles">Axles to service</label>
+                  <select
+                    id="axles"
+                    value={b.axles}
+                    onChange={(e) =>
+                      dispatch(update({ axles: Number(e.target.value) }))
+                    }
+                  >
+                    <option value="1">One axle</option>
+                    <option value="2">Both axles</option>
+                  </select>
+                </>
+              )}
+            </div>
+            <aside className="quote-summary">
+              <span className="eyebrow">YOUR STARTING ESTIMATE</span>
+              <div className="quote-price">
+                {money(total)}
+                <span>CAD</span>
+              </div>
+              <p>
+                {selected.name}
+                {perAxle ? ` · ${b.axles} axle${b.axles > 1 ? "s" : ""}` : ""}
+              </p>
+              <div className="summary-rule" />
+              <p className="muted">
+                Your car, your schedule. Exact pricing and availability
+                confirmed before booking.
+              </p>
+              <label htmlFor="message">Your quote request</label>
+              <textarea id="message" value={quote} readOnly rows={6} />
+              <button className="btn" onClick={copy}>
+                {copied ? <CheckCheck size={17} /> : <Copy size={17} />}{" "}
+                {copied ? "Request copied" : "Copy quote request"}
+                <ArrowUpRight size={17} />
+              </button>
+              <p className="fine-print" role="status">
+                {copyError
+                  ? "Copy unavailable. Select the message above and copy it manually."
+                  : "Copy your request to share with TorqLab. This estimate does not book an appointment."}
+              </p>
+            </aside>
+          </div>
+        </section>
+        <section id="how" className="section wrap">
+          <p className="eyebrow">03 / NO DETOURS</p>
+          <h2>
+            From parked to <span className="muted">taken care of.</span>
+          </h2>
+          <div className="steps">
+            {[
+              [
+                "Tell us about your car",
+                "Share your vehicle, service and Calgary neighbourhood.",
+              ],
+              [
+                "Find your time",
+                "We confirm your exact quote and a time that works.",
+              ],
+              [
+                "We come to you",
+                "Our fully equipped mobile workshop arrives at your door.",
+              ],
+              [
+                "Get on with your day",
+                "Service complete. Your car is ready for what’s next.",
+              ],
+            ].map(([title, text], i) => (
+              <div className="step" key={title}>
+                <div className="step-index">
+                  0{i + 1}
+                  <ArrowRight size={18} />
+                </div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section id="faq" className="section wrap faq-section">
+          <div>
+            <p className="eyebrow">04 / GOOD TO KNOW</p>
+            <h2>
+              A few things
+              <br />
+              <span className="muted">before we roll.</span>
+            </h2>
+          </div>
+          <div className="faq-list">
+            {[
+              [
+                "Where do you provide service?",
+                "We serve Calgary, Alberta. Include your neighbourhood in your request so we can confirm coverage.",
+              ],
+              [
+                "Which vehicles do you service?",
+                "Cars, sedans and eligible SUVs, including European and performance vehicles. We do not currently service trucks.",
+              ],
+              [
+                "Can I provide my own oil and filter?",
+                "Yes. Choose Labour only, starting at $39, and supply oil and a filter suitable for your vehicle.",
+              ],
+              [
+                "Is the estimate my final price?",
+                "The displayed prices are starting estimates. Your vehicle specifications and service needs determine the exact quote, which we confirm before work begins.",
+              ],
+            ].map(([q, a]) => (
+              <details key={q}>
+                <summary>
+                  {q}
+                  <span>+</span>
+                </summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+        <div className="wrap">
+          <div className="closing">
+            <h2>Skip the waiting room.</h2>
+            <a href="#quote" className="btn">
+              Let’s take care of your car <ArrowUpRight size={18} />
+            </a>
+          </div>
+        </div>
+      </main>
+      <footer className="wrap">
+        <a href="#home" className="brand" aria-label="TorqLab home">
+          <img src="/torqlab-logo.png" alt="TorqLab" />
+        </a>
+        <span>2607521 Alberta Inc. · Calgary, Alberta</span>
+        <a href="/model-attribution.txt" target="_blank" rel="noreferrer">
+          3D model credits <ArrowUpRight size={12} />
+        </a>
+        <span>© {new Date().getFullYear()} TorqLab Automotive</span>
+      </footer>
+    </>
+  );
+}
+createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>,
+);

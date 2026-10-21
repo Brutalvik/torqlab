@@ -1,6 +1,6 @@
 # TorqLab Automotive
 
-React frontend using Vite, Redux Toolkit, Tailwind CSS v4, and Three.js. No backend required.
+React + TypeScript frontend using Vite, Redux Toolkit, Tailwind CSS v4, and Three.js. No backend required.
 
 ## Run
 
@@ -17,15 +17,15 @@ The local development URL is http://127.0.0.1:5173/.
 ## Structure
 
 - src/styles.css: shared theme tokens in @theme, responsive component styles.
-- src/store.js: Redux booking state and actions.
-- src/data.js: service catalogue and starting prices from the original HTML.
-- src/CarViewer.jsx: lazy-loaded interactive GLB viewer, material treatment and lighting.
-- src/main.jsx: service selection, quote builder, navigation and content.
+- src/store.ts: Redux booking state and actions.
+- src/data.ts: service catalogue and starting prices from the original HTML.
+- src/CarViewer.tsx: lazy-loaded interactive GLB viewer, material treatment and lighting.
+- src/main.tsx: service selection, quote builder, navigation and content.
 - public/models/bmw-m5.glb: supplied model, loaded locally without a CDN.
 
 ## Model finish
 
-Paint materials are identified by name. Satin finish uses roughness 0.32, metalness 0.32, specular intensity 0.4 and lower environment intensity. Glass and textured wheel materials retain their original properties. Change these values in CarViewer.jsx to tune the finish. Orbit, pan, zoom, view presets, reset and optional auto rotation are supported. Loading and WebGL errors display a fallback message.
+Paint materials are identified by name. Satin finish uses roughness 0.32, metalness 0.32, specular intensity 0.4 and lower environment intensity. Glass and textured wheel materials retain their original properties. Change these values in CarViewer.tsx to tune the finish. Orbit, pan, zoom, view presets, reset and optional auto rotation are supported. Loading and WebGL errors display a fallback message.
 
 ## Backend integration
 
@@ -45,7 +45,7 @@ The hero uses a full-width transparent canvas with a reserved desktop viewport f
 
 ## Random paint palette
 
-src/paints.js contains the 11 requested paint variants. Redux selects one uniformly with Math.random when the application module starts on each full page load, before the lazy 3D viewer mounts. No localStorage, cookies, user-agent checks, or device branches are involved. Ordinary React rerenders and camera interactions preserve the selected color. Independent random selections may repeat.
+src/paints.ts contains the 11 requested paint variants. Redux selects one uniformly with Math.random when the application module starts on each full page load, before the lazy 3D viewer mounts. No localStorage, cookies, user-agent checks, or device branches are involved. Ordinary React rerenders and camera interactions preserve the selected color. Independent random selections may repeat.
 
 Paint names and codes reference BMW's F90 brochure (exterior colours, page 12):
 https://www.bmw.bg/content/dam/bmw/marketBG/bmw_bg/topics/pricelists-brochures/brochures/New_NOV2020/F90_PSL28_EAL_web.pdf.asset.1607346032818.pdf
@@ -56,4 +56,9 @@ Layout polish: all main containers share --content-width, --page-max and --page-
 
 
 The car automatically rotates at a slow showcase speed on load. Viewer toolbars are removed. Orbit/zoom gestures pause rotation, which resumes two seconds after interaction ends. Timers and listeners are cleaned up on unmount.
+
+
+## Type checking
+
+Run npm run typecheck for strict TypeScript validation. npm run build runs type checking before bundling. Typed Redux hooks live in src/hooks.ts; service, booking and paint types are exported beside their data.
 
